@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const totalElement = document.getElementById("total");
   const clearCartButton = document.getElementById("clear-cart");
   const placeOrderButton = document.getElementById("place-order");
-  const addCheckedToCartButton = document.getElementById("add-checked-to-cart"); // เพิ่มปุ่มใหม่
+  const addCheckedToCartButton = document.getElementById("add-checked-to-cart");
   const productNameInput = document.getElementById("productName");
   const productPriceInput = document.getElementById("productPrice");
   const productImageInput = document.getElementById("productImage");
@@ -21,63 +21,44 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
   function createProductCard(product) {
     return `
-      <div class="card">
-        <figure class="w-full h-56 bg-cover bg-center" style="background-image: url(${product.image});"></figure>
-        <div class="card-body bg-white p-4">
-          <h3 class="card-title">${product.name}</h3>
-          <div><span>Product Price: </span><span class="card-price">${product.price} ฿</span> </div>
-          <div class="flex justify-between items-center">
-            <input type="checkbox" class="checkbox" />
-            <button class="btn bg-black text-white add-to-cart-btn" data-product-name="${product.name}" data-product-price="${product.price}">Add to cart</button>
-          </div>
+    <div class="card">
+      <figure class="w-full h-56 bg-cover bg-center" style="background-image: url(${product.image});"></figure>
+      <div class="card-body bg-white p-4">
+        <h3 class="card-title">${product.name}</h3>
+        <div><span>Product Price: </span><span class="card-price">${product.price} ฿</span> </div>
+        <div class="flex justify-between items-center">
+          <input type="checkbox" class="checkbox" data-product-name="${product.name}" data-product-price="${product.price}"/>
         </div>
       </div>
-    `;
+    </div>
+  `;
   }
-  function addToCart(name, price) {
-    const cartItem = document.createElement("li");
-    cartItem.className =
-      "flex justify-between items-center bg-gray-100 p-2 rounded-md";
-    const removeButton = document.createElement("button");
-    removeButton.className = "btn btn-xs btn-circle bg-black text-white";
-    removeButton.innerHTML = "x";
-
-    const itemText = document.createElement("span");
-    itemText.textContent = `${name} - ${price} ฿`;
-
-    cartItem.appendChild(itemText);
-    cartItem.appendChild(removeButton);
-
-    cartList.appendChild(cartItem);
-    updateTotals();
-
-    removeButton.addEventListener("click", () => {
-      cartItem.remove();
-      updateTotals();
-    });
-  }
-
-  productList.addEventListener("click", (event) => {
-    const button = event.target.closest(".add-to-cart-btn");
-    if (button) {
-      const card = button.closest(".card");
-      addToCart(
-        card.querySelector(".card-title").textContent,
-        parseFloat(card.querySelector(".card-price").textContent)
-      );
-    }
-  });
-
   addCheckedToCartButton.addEventListener("click", () => {
     const checkedCheckboxes = productList.querySelectorAll(".checkbox:checked");
 
     checkedCheckboxes.forEach((checkbox) => {
-      const card = checkbox.closest(".card");
-      const button = card.querySelector(".add-to-cart-btn");
-      addToCart(
-        button.dataset.productName,
-        parseFloat(button.dataset.productPrice)
-      );
+      const productName = checkbox.dataset.productName;
+      const productPrice = parseFloat(checkbox.dataset.productPrice);
+
+      const cartItem = document.createElement("li");
+      cartItem.className =
+        "flex justify-between items-center bg-gray-100 p-2 rounded-md";
+
+      const removeButton = document.createElement("button");
+      removeButton.className = "btn btn-xs btn-circle bg-black text-white";
+      removeButton.innerHTML = "x";
+      removeButton.addEventListener("click", () => {
+        cartItem.remove();
+        updateTotals();
+      });
+
+      const itemText = document.createElement("span");
+      itemText.textContent = `${productName} - ${productPrice} ฿`;
+
+      cartItem.appendChild(itemText);
+      cartItem.appendChild(removeButton);
+      cartList.appendChild(cartItem);
+      updateTotals();
     });
   });
 
@@ -110,3 +91,48 @@ document.addEventListener("DOMContentLoaded", () => {
     taxElement.textContent = tax.toFixed(2);
     totalElement.textContent = total.toFixed(2);
   }
+
+  function validateForm() {
+    const priceRegex = /^\d+(\.\d{0,2})?$/;
+    const imageRegex = /\.(png|jpe?g|gif)$/i;
+
+    if (!priceRegex.test(productPriceInput.value)) {
+      priceErrorSpan.classList.remove("hidden");
+      return false;
+    } else {
+      priceErrorSpan.classList.add("hidden");
+    }
+
+    if (!imageRegex.test(productImageInput.value)) {
+      imageErrorSpan.classList.remove("hidden");
+      return false;
+    } else {
+      imageErrorSpan.classList.add("hidden");
+    }
+
+    return true;
+  }
+
+  placeOrderButton.addEventListener("click", () => {
+    const confirmOrder = confirm("Confirm your order?");
+
+    if (confirmOrder) {
+      cartList.innerHTML = "";
+      updateTotals();
+      alert("Order placed successfully!");
+    }
+  });
+
+  clearCartButton.addEventListener("click", () => {
+    cartList.innerHTML = "";
+    updateTotals();
+  });
+  function renderProductList() {
+    productList.innerHTML = "";
+    userCreatedProducts.forEach((product) => {
+      productList.innerHTML += createProductCard(product);
+    });
+  }
+  renderProductList();
+  updateTotals();
+});
