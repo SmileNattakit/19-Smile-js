@@ -80,13 +80,18 @@
           </form>
         </div>
         <!-- Product list -->
-        <div class="w-3/5">
+        <div class="w-3/5 flex flex-col">
           <div id="product-list" class="grid grid-cols-3 gap-3"></div>
+          <button id="add-checked-to-cart" class="btn mt-4 bg-black text-white">
+            Add selected Items to Cart
+          </button>
         </div>
       </div>
+
       <!-- Cart -->
       <div class="bg-white p-4 rounded-lg shadow mt-6">
         <h2 class="text-xl font-semibold mb-4">Cart</h2>
+
         <ul id="cart-list" class="space-y-2 mb-4"></ul>
         <button id="clear-cart" class="text-red-500">clear all</button>
         <div class="mt-4 bg-gray-100 p-4 flex-row rounded-md">
